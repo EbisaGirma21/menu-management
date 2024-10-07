@@ -6,11 +6,6 @@ import {
   ChevronRight,
   Menu,
   X,
-  Users,
-  Layers,
-  Code,
-  Grid,
-  FileText,
   Folder,
   LayoutGrid,
   WrapText,
@@ -18,12 +13,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
 import Image from "next/image";
 
 export default function Component() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [selectedMenu, setSelectedMenu] = useState("system:management");
+  // const [selectedMenu, setSelectedMenu] = useState("system:management");
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
