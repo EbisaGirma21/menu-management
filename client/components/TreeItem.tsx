@@ -64,9 +64,9 @@ export const TreeItem: React.FC<TreeItemProps> = ({ item }) => {
       {hasChildren && isExpanded && (
         <ul className="ml-4 mt-1 border-l border-gray-300 pl-2">
           {item.children?.map((child) => (
-            <ContextMenu>
+            <ContextMenu key={child.id}>
               <ContextMenuTrigger>
-                <TreeItem key={child.id} item={child} />
+                <TreeItem item={child} />
               </ContextMenuTrigger>
               <ContextMenuContent>
                 <ContextMenuItem
