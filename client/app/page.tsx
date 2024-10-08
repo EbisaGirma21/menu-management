@@ -28,7 +28,7 @@ export default function Component() {
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  const menuItems: MenuItem[] = [
+  const menuItems = [
     {
       id: "1",
       name: "system:management",
@@ -56,7 +56,44 @@ export default function Component() {
               depth: 2,
               children: [{ id: "9", name: "Menu Registration", depth: 3 }],
             },
-            // More children...
+            {
+              id: "10",
+              name: "API List",
+              depth: 2,
+              children: [
+                { id: "11", name: "API Registration", depth: 3 },
+                { id: "12", name: "API Edit", depth: 3 },
+              ],
+            },
+            {
+              id: "13",
+              name: "Users & Groups",
+              depth: 2,
+              children: [
+                {
+                  id: "14",
+                  name: "Users",
+                  depth: 3,
+                  children: [
+                    { id: "15", name: "User Account Registration", depth: 4 },
+                  ],
+                },
+                {
+                  id: "16",
+                  name: "Groups",
+                  depth: 3,
+                  children: [
+                    { id: "17", name: "User Group Registration", depth: 4 },
+                  ],
+                },
+              ],
+            },
+            {
+              id: "18",
+              name: "사용자 설정",
+              depth: 2,
+              children: [{ id: "19", name: "사용자 설정 상세", depth: 3 }],
+            },
           ],
         },
       ],
