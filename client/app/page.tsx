@@ -14,11 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
-import {
-  useFetchMenuItems,
-  useAddMenuItem,
-  useEditMenuItem,
-} from "../hooks/use-menu-query"; // Adjust the import path accordingly
+import { useFetchMenuItems, useAddMenuItem } from "../hooks/use-menu-query"; // Adjust the import path accordingly
 import { useForm } from "react-hook-form";
 
 // Define type for menu items
@@ -37,7 +33,7 @@ export default function Component() {
   // React Query hooks
   const { data: menuItems } = useFetchMenuItems();
   const addMenuItemMutation = useAddMenuItem();
-  const editMenuItemMutation = useEditMenuItem();
+  // const editMenuItemMutation = useEditMenuItem();
 
   // React Hook Form
   const { register, handleSubmit, reset } = useForm<MenuItem>({
