@@ -14,6 +14,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
+import {
+  useFetchMenuItems,
+  useAddMenuItem,
+  useEditMenuItem,
+} from "../hooks/use-menu-query"; // Adjust the import path accordingly
+import { useForm } from "react-hook-form";
 
 // Define type for menu items
 interface MenuItem {
@@ -25,80 +31,30 @@ interface MenuItem {
 
 export default function Component() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  const menuItems = [
-    {
-      id: "1",
-      name: "system:management",
+  // React Query hooks
+  const { data: menuItems } = useFetchMenuItems();
+  const addMenuItemMutation = useAddMenuItem();
+  const editMenuItemMutation = useEditMenuItem();
+
+  // React Hook Form
+  const { register, handleSubmit, setValue, reset } = useForm<MenuItem>({
+    defaultValues: {
+      name: "",
       depth: 0,
-      children: [
-        {
-          id: "2",
-          name: "SystemManagement",
-          depth: 1,
-          children: [
-            {
-              id: "3",
-              name: "Systems",
-              depth: 2,
-              children: [
-                { id: "4", name: "System Code", depth: 3 },
-                { id: "5", name: "Code Registration", depth: 3 },
-                { id: "6", name: "Code Registration - 2", depth: 3 },
-                { id: "7", name: "Properties", depth: 3 },
-              ],
-            },
-            {
-              id: "8",
-              name: "Menus",
-              depth: 2,
-              children: [{ id: "9", name: "Menu Registration", depth: 3 }],
-            },
-            {
-              id: "10",
-              name: "API List",
-              depth: 2,
-              children: [
-                { id: "11", name: "API Registration", depth: 3 },
-                { id: "12", name: "API Edit", depth: 3 },
-              ],
-            },
-            {
-              id: "13",
-              name: "Users & Groups",
-              depth: 2,
-              children: [
-                {
-                  id: "14",
-                  name: "Users",
-                  depth: 3,
-                  children: [
-                    { id: "15", name: "User Account Registration", depth: 4 },
-                  ],
-                },
-                {
-                  id: "16",
-                  name: "Groups",
-                  depth: 3,
-                  children: [
-                    { id: "17", name: "User Group Registration", depth: 4 },
-                  ],
-                },
-              ],
-            },
-            {
-              id: "18",
-              name: "사용자 설정",
-              depth: 2,
-              children: [{ id: "19", name: "사용자 설정 상세", depth: 3 }],
-            },
-          ],
-        },
-      ],
+      parentData: "",
     },
-  ];
+  });
+
+  const onSubmit = async (data: MenuItem) => {
+    if (data.id) {
+      await editMenuItemMutation.mutateAsync(data);
+    } else {
+      await addMenuItemMutation.mutateAsync(data);
+    }
+    reset(); // Reset form after submission
+  };
 
   return (
     <div className="flex h-screen bg-white">
@@ -202,27 +158,22 @@ export default function Component() {
               <Button variant="outline">Collapse All</Button>
             </div>
             <div className="border rounded-lg p-4">
-              <MenuTree items={menuItems} />
+              <MenuTree items={menuItems || []} />
             </div>
           </div>
 
           {/* Right side - Form */}
-          <div className="w-full md:w-1/2  p-6">
-            <div className="grid gap-4">
+          <div className="w-full md:w-1/2 p-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
               <div>
                 <Label htmlFor="menuId">Menu ID</Label>
-                <Input
-                  id="menuId"
-                  value="563704e9-6af6-11ed-a7ba-f220afe54a9"
-                  readOnly
-                />
+                <Input id="menuId" {...register("id")} readOnly />
               </div>
               <div>
                 <Label htmlFor="depth">Depth</Label>
                 <Input
                   id="depth"
-                  value="3"
-                  readOnly
+                  {...register("depth")}
                   className="bg-gray-100 w-full lg:w-[50%]"
                 />
               </div>
@@ -230,23 +181,25 @@ export default function Component() {
                 <Label htmlFor="parentData">Parent Data</Label>
                 <Input
                   id="parentData"
-                  value="Systems"
-                  readOnly
-                  className="bg-gray-100  w-full lg:w-[50%]"
+                  {...register("parentData")}
+                  className="bg-gray-100 w-full lg:w-[50%]"
                 />
               </div>
               <div>
                 <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
-                  defaultValue="System Code"
-                  className=" w-full lg:w-[50%]"
+                  {...register("name")}
+                  className="w-full lg:w-[50%]"
                 />
               </div>
-            </div>
-            <Button className="mt-6 w-[50%] bg-blue-600 rounded-full p-7">
-              Save
-            </Button>
+              <Button
+                className="mt-6 w-[50%] bg-blue-600 rounded-full p-7"
+                type="submit"
+              >
+                Save
+              </Button>
+            </form>
           </div>
         </div>
       </main>
