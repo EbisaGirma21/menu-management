@@ -3,13 +3,18 @@ const MenuItem = require("../models/menuModel");
 // 1. Get all menus
 exports.getMenus = async (req, res) => {
   try {
-    const menus = await MenuItem.find();
-    res.json(menus);
+    // Find all root-level items (where parent is null)
+    const rootItems = await MenuItem.find({ parent: null }).populate({
+      path: "children",
+      populate: { path: "children", populate: { path: "children" } }, // Populate nested children recursively
+    });
+
+    res.json(rootItems); // Return the full hierarchy
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 };
-
 // 2. Get specific menu with depth and root item
 exports.getSpecificMenu = async (req, res) => {
   try {
@@ -21,14 +26,37 @@ exports.getSpecificMenu = async (req, res) => {
   }
 };
 
-// 3. Add menu item hierarchically
 exports.addMenuItem = async (req, res) => {
-  const { name, depth, parentId } = req.body;
+  const { name, depth, id, parentData } = req.body;
+
   try {
-    const newItem = new MenuItem({ name, depth, parent: parentId || null });
-    await newItem.save();
-    res.json(newItem);
+    const parentItem = await MenuItem.findOne({
+      name: parentData.trim(),
+      depth: parseInt(depth, 10) - 1, // Ensure we're looking at the correct depth for the parent
+    });
+
+    console.log(parentData);
+
+    const newItem = new MenuItem({
+      id,
+      name,
+      depth: parseInt(depth, 10),
+      parent: parentItem ? parentItem._id : null,
+    });
+
+    const savedItem = await newItem.save();
+
+    if (parentItem) {
+      if (!parentItem.children.includes(savedItem._id)) {
+        parentItem.children.push(savedItem._id);
+        await parentItem.save();
+      }
+    }
+
+    // Return the newly created item as the response
+    res.json(savedItem);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 };

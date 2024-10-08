@@ -27,6 +27,7 @@ interface MenuItem {
   name: string;
   depth?: number;
   children?: MenuItem[];
+  parentData?: string;
 }
 
 export default function Component() {
@@ -39,7 +40,7 @@ export default function Component() {
   const editMenuItemMutation = useEditMenuItem();
 
   // React Hook Form
-  const { register, handleSubmit, setValue, reset } = useForm<MenuItem>({
+  const { register, handleSubmit, reset } = useForm<MenuItem>({
     defaultValues: {
       name: "",
       depth: 0,
@@ -48,11 +49,11 @@ export default function Component() {
   });
 
   const onSubmit = async (data: MenuItem) => {
-    if (data.id) {
-      await editMenuItemMutation.mutateAsync(data);
-    } else {
-      await addMenuItemMutation.mutateAsync(data);
-    }
+    // if (data.id) {
+    //   await editMenuItemMutation.mutateAsync(data);
+    // } else {
+    await addMenuItemMutation.mutateAsync(data);
+    // }
     reset(); // Reset form after submission
   };
 
@@ -167,7 +168,7 @@ export default function Component() {
             <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
               <div>
                 <Label htmlFor="menuId">Menu ID</Label>
-                <Input id="menuId" {...register("id")} readOnly />
+                <Input id="menuId" {...register("id")} />
               </div>
               <div>
                 <Label htmlFor="depth">Depth</Label>
@@ -256,7 +257,7 @@ const TreeItem: React.FC<TreeItemProps> = ({ item }) => {
 
   return (
     <li className="mt-1">
-      <div className="flex items-center">
+      <div className="flex items-center p-2">
         {hasChildren && (
           <Button
             variant="ghost"

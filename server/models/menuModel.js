@@ -9,6 +9,12 @@ const menuItemSchema = new mongoose.Schema({
     ref: "MenuItem",
     default: null,
   },
+  children: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "MenuItem",
+    },
+  ],
 });
 
 const MenuItem = mongoose.model("MenuItem", menuItemSchema);

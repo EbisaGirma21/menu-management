@@ -14,7 +14,9 @@ interface MenuItem {
 // Fetch menu items
 export const useFetchMenuItems = () => {
   return useQuery("menuItems", async () => {
-    const res = await axios.get("/api/menu-items");
+    const res = await axios.get(
+      "https://menu-management-backend-ukvu.onrender.com/menus"
+    );
     return res.data;
   });
 };
@@ -24,7 +26,10 @@ export const useAddMenuItem = () => {
   const queryClient = useQueryClient();
   return useMutation(
     async (newItem: MenuItem) => {
-      return await axios.post("/api/menu-items", newItem);
+      return await axios.post(
+        "https://menu-management-backend-ukvu.onrender.com/menus",
+        newItem
+      );
     },
     {
       onSuccess: () => {
@@ -39,7 +44,10 @@ export const useEditMenuItem = () => {
   const queryClient = useQueryClient();
   return useMutation(
     async (updatedItem: MenuItem) => {
-      return await axios.put(`/api/menu-items/${updatedItem.id}`, updatedItem);
+      return await axios.put(
+        `https://menu-management-backend-ukvu.onrender.com/menus/${updatedItem.id}`,
+        updatedItem
+      );
     },
     {
       onSuccess: () => {
@@ -54,7 +62,9 @@ export const useDeleteMenuItem = () => {
   const queryClient = useQueryClient();
   return useMutation(
     async (id: string | number) => {
-      return await axios.delete(`/api/menu-items/${id}`);
+      return await axios.delete(
+        `https://menu-management-backend-ukvu.onrender.com/menus/${id}`
+      );
     },
     {
       onSuccess: () => {
