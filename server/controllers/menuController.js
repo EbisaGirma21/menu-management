@@ -1,21 +1,18 @@
 const MenuItem = require("../models/menuModel");
 
-// 1. Get all menus
 exports.getMenus = async (req, res) => {
   try {
-    // Find all root-level items (where parent is null)
     const rootItems = await MenuItem.find({ parent: null }).populate({
       path: "children",
-      populate: { path: "children", populate: { path: "children" } }, // Populate nested children recursively
+      populate: { path: "children", populate: { path: "children" } },
     });
 
-    res.json(rootItems); // Return the full hierarchy
+    res.json(rootItems);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: err.message });
   }
 };
-// 2. Get specific menu with depth and root item
 exports.getSpecificMenu = async (req, res) => {
   try {
     const { id } = req.params;
@@ -32,7 +29,7 @@ exports.addMenuItem = async (req, res) => {
   try {
     const parentItem = await MenuItem.findOne({
       name: parentData.trim(),
-      depth: parseInt(depth, 10) - 1, // Ensure we're looking at the correct depth for the parent
+      depth: parseInt(depth, 10) - 1,
     });
 
     console.log(parentData);
@@ -53,7 +50,6 @@ exports.addMenuItem = async (req, res) => {
       }
     }
 
-    // Return the newly created item as the response
     res.json(savedItem);
   } catch (err) {
     console.error(err);
@@ -61,7 +57,6 @@ exports.addMenuItem = async (req, res) => {
   }
 };
 
-// 4. Update menu item
 exports.updateMenuItem = async (req, res) => {
   const { id } = req.params;
   const { name, depth } = req.body;
@@ -77,13 +72,24 @@ exports.updateMenuItem = async (req, res) => {
   }
 };
 
-// 5. Delete menu item
 exports.deleteMenuItem = async (req, res) => {
   const { id } = req.params;
   try {
-    await MenuItem.findByIdAndDelete(id);
-    res.json({ message: "Menu item deleted" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const menuItem = await MenuItem.find({ id: id });
+
+    if (!menuItem) {
+      return res.status(404).json({ message: "Menu item not found" });
+    }
+    if (menuItem.children && menuItem.children.length > 0) {
+      return res
+        .status(400)
+        .json({ message: "Cannot delete a menu item with children" });
+    }
+    console.log(menuItem);
+    await MenuItem.deleteOne({ id });
+    res.status(200).json({ message: "Menu item deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
