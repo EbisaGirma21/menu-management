@@ -15,7 +15,7 @@ interface MenuItem {
 export const useFetchMenuItems = () => {
   return useQuery("menuItems", async () => {
     const res = await axios.get(
-      "https://menu-management-backend-ukvu.onrender.com/menus"
+      "https://menu-management-backend-ukvu.onrender.com/api/menus"
     );
     return res.data;
   });
@@ -27,7 +27,7 @@ export const useAddMenuItem = () => {
   return useMutation(
     async (newItem: MenuItem) => {
       return await axios.post(
-        "https://menu-management-backend-ukvu.onrender.com/menus",
+        "https://menu-management-backend-ukvu.onrender.com/api/menus",
         newItem
       );
     },
@@ -45,7 +45,7 @@ export const useEditMenuItem = () => {
   return useMutation(
     async (updatedItem: MenuItem) => {
       return await axios.put(
-        `https://menu-management-backend-ukvu.onrender.com/menus/${updatedItem.id}`,
+        `https://menu-management-backend-ukvu.onrender.com/api/menus/${updatedItem.id}`,
         updatedItem
       );
     },
@@ -63,7 +63,7 @@ export const useDeleteMenuItem = () => {
   return useMutation(
     async (id: string | number) => {
       return await axios.delete(
-        `https://menu-management-backend-ukvu.onrender.com/menus/${id}`
+        `https://menu-management-backend-ukvu.onrender.com/api/menus/${id}`
       );
     },
     {
