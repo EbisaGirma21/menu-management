@@ -15,13 +15,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 
+// Define type for menu items
+interface MenuItem {
+  id: string | number;
+  name: string;
+  depth?: number;
+  children?: MenuItem[];
+}
+
 export default function Component() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  // const [selectedMenu, setSelectedMenu] = useState("system:management");
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     {
       id: "1",
       name: "system:management",
@@ -49,44 +56,7 @@ export default function Component() {
               depth: 2,
               children: [{ id: "9", name: "Menu Registration", depth: 3 }],
             },
-            {
-              id: "10",
-              name: "API List",
-              depth: 2,
-              children: [
-                { id: "11", name: "API Registration", depth: 3 },
-                { id: "12", name: "API Edit", depth: 3 },
-              ],
-            },
-            {
-              id: "13",
-              name: "Users & Groups",
-              depth: 2,
-              children: [
-                {
-                  id: "14",
-                  name: "Users",
-                  depth: 3,
-                  children: [
-                    { id: "15", name: "User Account Registration", depth: 4 },
-                  ],
-                },
-                {
-                  id: "16",
-                  name: "Groups",
-                  depth: 3,
-                  children: [
-                    { id: "17", name: "User Group Registration", depth: 4 },
-                  ],
-                },
-              ],
-            },
-            {
-              id: "18",
-              name: "사용자 설정",
-              depth: 2,
-              children: [{ id: "19", name: "사용자 설정 상세", depth: 3 }],
-            },
+            // More children...
           ],
         },
       ],
@@ -216,7 +186,7 @@ export default function Component() {
                   id="depth"
                   value="3"
                   readOnly
-                  className="bg-gray-100 w-[50%]"
+                  className="bg-gray-100 w-full lg:w-[50%]"
                 />
               </div>
               <div>
@@ -225,7 +195,7 @@ export default function Component() {
                   id="parentData"
                   value="Systems"
                   readOnly
-                  className="bg-gray-100 w-[50%]"
+                  className="bg-gray-100  w-full lg:w-[50%]"
                 />
               </div>
               <div>
@@ -233,7 +203,7 @@ export default function Component() {
                 <Input
                   id="name"
                   defaultValue="System Code"
-                  className="w-[50%]"
+                  className=" w-full lg:w-[50%]"
                 />
               </div>
             </div>
@@ -247,23 +217,35 @@ export default function Component() {
   );
 }
 
-function NavItem({ icon, label, active = false }) {
+// NavItem Component Type Definition
+interface NavItemProps {
+  icon: React.ReactNode;
+  label: string;
+  active?: boolean;
+}
+
+const NavItem: React.FC<NavItemProps> = ({ icon, label, active = false }) => {
   return (
     <a
       href="#"
       className={`flex items-center px-4 py-4 text-sm ${
         active
           ? "bg-[#9FF443] text-black rounded-md"
-          : "text-[#667085]  hover:bg-gray-700"
+          : "text-[#667085] hover:bg-gray-700"
       }`}
     >
       {icon}
       <span className="ml-3">{label}</span>
     </a>
   );
+};
+
+// MenuTree Component Type Definition
+interface MenuTreeProps {
+  items: MenuItem[];
 }
 
-function MenuTree({ items }) {
+const MenuTree: React.FC<MenuTreeProps> = ({ items }) => {
   return (
     <ul className="text-sm">
       {items.map((item) => (
@@ -271,9 +253,14 @@ function MenuTree({ items }) {
       ))}
     </ul>
   );
+};
+
+// TreeItem Component Type Definition
+interface TreeItemProps {
+  item: MenuItem;
 }
 
-function TreeItem({ item }) {
+const TreeItem: React.FC<TreeItemProps> = ({ item }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = item.children && item.children.length > 0;
 
@@ -304,11 +291,11 @@ function TreeItem({ item }) {
       </div>
       {hasChildren && isExpanded && (
         <ul className="ml-4 mt-1 border-l border-gray-300 pl-2">
-          {item.children.map((child) => (
+          {item.children?.map((child) => (
             <TreeItem key={child.id} item={child} />
           ))}
         </ul>
       )}
     </li>
   );
-}
+};
