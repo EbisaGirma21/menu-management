@@ -1,13 +1,24 @@
 const MenuItem = require("../models/menuModel");
 
+const populateChildren = async (item) => {
+  await item.populate("children");
+
+  for (const child of item.children) {
+    await populateChildren(child);
+  }
+
+  return item;
+};
+
 exports.getMenus = async (req, res) => {
   try {
-    const rootItems = await MenuItem.find({ parent: null }).populate({
-      path: "children",
-      populate: { path: "children", populate: { path: "children" } },
-    });
+    const rootItems = await MenuItem.find({ parent: null });
 
-    res.json(rootItems);
+    const populatedRootItems = await Promise.all(
+      rootItems.map(populateChildren)
+    );
+
+    res.json(populatedRootItems);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: err.message });
@@ -27,12 +38,35 @@ exports.addMenuItem = async (req, res) => {
   const { name, depth, id, parentData } = req.body;
 
   try {
+    const existingMenuItem = await MenuItem.findOne({ id: id });
+
+    if (existingMenuItem) {
+      existingMenuItem.name = name;
+      existingMenuItem.depth = parseInt(depth, 10);
+      existingMenuItem.parent = parentData
+        ? await MenuItem.findOne({
+            name: parentData.trim(),
+            depth: parseInt(depth, 10) - 1,
+          })
+        : null;
+
+      if (existingMenuItem.parent) {
+        if (!existingMenuItem.parent.children.includes(existingMenuItem._id)) {
+          existingMenuItem.parent.children.push(existingMenuItem._id);
+          await existingMenuItem.parent.save();
+        }
+      }
+
+      const updatedItem = await existingMenuItem.save();
+      return res.json(updatedItem);
+    }
+
     const parentItem = await MenuItem.findOne({
       name: parentData.trim(),
       depth: parseInt(depth, 10) - 1,
     });
 
-    console.log(parentData);
+    console.log("Parent Item Found:", parentItem);
 
     const newItem = new MenuItem({
       id,

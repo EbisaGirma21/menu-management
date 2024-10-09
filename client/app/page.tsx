@@ -28,6 +28,12 @@ interface MenuItem {
 
 export default function MyMenu() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isOnUpdate, setIsOnUpdate] = useState(false);
+  const [id, setId] = useState<string | number>("");
+  const [depth, setDepth] = useState<number>(0);
+  const [parentData, setParentData] = useState<string>("");
+  const [name, setName] = useState<string>("");
+
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const { data: menuItems } = useFetchMenuItems();
@@ -42,8 +48,17 @@ export default function MyMenu() {
   });
 
   const onSubmit = async (data: MenuItem) => {
-    await addMenuItemMutation.mutateAsync(data);
+    if (isOnUpdate) {
+      await addMenuItemMutation.mutateAsync({ id, depth, parentData, name });
+    } else {
+      await addMenuItemMutation.mutateAsync(data);
+    }
     reset();
+    setIsOnUpdate(false);
+    setId("");
+    setDepth(0);
+    setName("");
+    setParentData("");
   };
 
   return (
@@ -134,7 +149,6 @@ export default function MyMenu() {
           <h2 className="text-2xl font-bold">Menu</h2>
         </div>
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Left side - Menu tree */}
           <div className="w-full md:w-1/2  rounded-lg ">
             <div className="mb-4">
               <Label htmlFor="menu">Menu</Label>
@@ -150,23 +164,38 @@ export default function MyMenu() {
               <Button variant="outline">Collapse All</Button>
             </div>
             <div className="border rounded-lg p-4">
-              <MenuTree items={menuItems || []} />
+              <MenuTree
+                setId={setId}
+                setDepth={setDepth}
+                setParentData={setParentData}
+                setName={setName}
+                setIsOnUpdate={setIsOnUpdate}
+                items={menuItems || []}
+              />
             </div>
           </div>
 
-          {/* Right side - Form */}
           <div className="w-full md:w-1/2 p-6">
             <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
               <div>
                 <Label htmlFor="menuId">Menu ID</Label>
-                <Input id="menuId" {...register("id")} />
+                <Input
+                  id="menuId"
+                  {...register("id")}
+                  value={id}
+                  onChange={(e) => setId(e.target.value)}
+                  readOnly={isOnUpdate ? true : false}
+                />
               </div>
               <div>
                 <Label htmlFor="depth">Depth</Label>
                 <Input
                   id="depth"
                   {...register("depth")}
+                  value={depth !== undefined ? depth : ""}
+                  onChange={(e) => setDepth(Number(e.target.value))}
                   className="bg-gray-100 w-full lg:w-[50%]"
+                  readOnly={isOnUpdate ? true : false}
                 />
               </div>
               <div>
@@ -174,7 +203,10 @@ export default function MyMenu() {
                 <Input
                   id="parentData"
                   {...register("parentData")}
+                  value={parentData}
+                  onChange={(e) => setParentData(e.target.value)}
                   className="bg-gray-100 w-full lg:w-[50%]"
+                  readOnly={isOnUpdate ? true : false}
                 />
               </div>
               <div>
@@ -182,6 +214,8 @@ export default function MyMenu() {
                 <Input
                   id="name"
                   {...register("name")}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="w-full lg:w-[50%]"
                 />
               </div>
